@@ -76,6 +76,7 @@ class ChooseMunicipalityTests(unittest.IsolatedAsyncioTestCase):
         selected = await ibge_client.choose_municipality("nacional", None)
 
         self.assertEqual(selected["municipality_id"], "3304557")
+        self.assertEqual(selected["state_sigla"], "RJ")
         self.assertEqual(selected["population"], 100000)
         self.assertEqual(selected["reference_year"], 2026)
         self.assertEqual(

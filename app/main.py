@@ -205,6 +205,8 @@ async def create_game(
         "id": game_id,
         "scope": request.scope,
         "scope_id": request.scope_id,
+        "municipality_name": municipality["municipality_name"],
+        "state_sigla": municipality["state_sigla"],
         "status": "active",
         "attempts": 0,
         "created_at": created_at,

@@ -99,6 +99,7 @@ async def choose_municipality(
             {
                 "municipality_id": municipality_id,
                 "municipality_name": locality["nome"],
+                "state_sigla": state["sigla"],
                 "population": population,
                 "reference_year": reference_year,
             }

@@ -23,6 +23,7 @@ STATES = [
 MUNICIPALITY = {
     "municipality_id": "3304557",
     "municipality_name": "Rio de Janeiro",
+    "state_sigla": "RJ",
     "population": 100000,
     "reference_year": 2026,
 }
@@ -146,6 +147,18 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(active_game.json()["attempts"], 0)
         self.assertNotIn("population", active_game.json())
         self.assertNotIn("municipality_name", active_game.json())
+
+    def test_create_reveals_municipality_name_and_state_only(self):
+        response = self.client.post(
+            "/api/v1/partidas",
+            headers=PLAYER_HEADERS,
+            json={"scope": "nacional"},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["municipality_name"], "Rio de Janeiro")
+        self.assertEqual(response.json()["state_sigla"], "RJ")
+        self.assertNotIn("population", response.json())
 
     def test_guess_accepts_both_inclusive_five_percent_boundaries(self):
         for guess in (95000, 105000):
