@@ -23,11 +23,31 @@ async def _get_json(path: str) -> Any:
 
 
 async def get_regions() -> list[dict[str, Any]]:
-    return await _get_json("/v1/localidades/regioes")
+    payload = await _get_json("/v1/localidades/regioes")
+    if not isinstance(payload, list) or any(
+        not isinstance(region, dict)
+        or not str(region.get("id", "")).isdigit()
+        or not isinstance(region.get("sigla"), str)
+        or not isinstance(region.get("nome"), str)
+        for region in payload
+    ):
+        raise IbgeServiceError("O IBGE retornou regiões em formato inesperado.")
+    return payload
 
 
 async def get_states() -> list[dict[str, Any]]:
-    return await _get_json("/v1/localidades/estados")
+    payload = await _get_json("/v1/localidades/estados")
+    if not isinstance(payload, list) or any(
+        not isinstance(state, dict)
+        or not str(state.get("id", "")).isdigit()
+        or not isinstance(state.get("sigla"), str)
+        or not isinstance(state.get("nome"), str)
+        or not isinstance(state.get("regiao"), dict)
+        or not str(state["regiao"].get("id", "")).isdigit()
+        for state in payload
+    ):
+        raise IbgeServiceError("O IBGE retornou estados em formato inesperado.")
+    return payload
 
 
 async def get_latest_municipal_population() -> list[dict[str, Any]]:
@@ -43,8 +63,11 @@ async def get_latest_municipal_population() -> list[dict[str, Any]]:
 
 
 def latest_population_value(series: dict[str, Any]) -> tuple[int, int] | None:
-    values = series.get("serie", {})
-    available_periods = [period for period in values if period.isdigit()]
+    if not isinstance(series, dict) or not isinstance(series.get("serie"), dict):
+        return None
+
+    values = series["serie"]
+    available_periods = [period for period in values if isinstance(period, str) and period.isdigit()]
     if not available_periods:
         return None
 
@@ -77,7 +100,11 @@ async def choose_municipality(
     population_series = await get_latest_municipal_population()
     candidates = []
     for item in population_series:
-        locality = item.get("localidade", {})
+        if not isinstance(item, dict):
+            continue
+        locality = item.get("localidade")
+        if not isinstance(locality, dict) or not isinstance(locality.get("nome"), str):
+            continue
         municipality_id = str(locality.get("id", ""))
         if len(municipality_id) != 7 or not municipality_id[:2].isdigit():
             continue

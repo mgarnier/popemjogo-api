@@ -49,6 +49,23 @@ class LatestPopulationValueTests(unittest.TestCase):
     def test_returns_none_when_no_year_is_available(self):
         self.assertIsNone(ibge_client.latest_population_value({"serie": {"P1": "100"}}))
 
+    def test_returns_none_for_malformed_series(self):
+        for row in ({}, {"serie": []}, {"serie": {2026: "100000"}}):
+            with self.subTest(row=row):
+                self.assertIsNone(ibge_client.latest_population_value(row))
+
+
+class GeographyPayloadTests(unittest.IsolatedAsyncioTestCase):
+    async def test_rejects_malformed_regions_payload(self):
+        with patch.object(ibge_client, "_get_json", new=AsyncMock(return_value=[{"id": 1}])):
+            with self.assertRaisesRegex(ibge_client.IbgeServiceError, "regiões"):
+                await ibge_client.get_regions()
+
+    async def test_rejects_malformed_states_payload(self):
+        with patch.object(ibge_client, "_get_json", new=AsyncMock(return_value=[{"id": 33, "sigla": "RJ"}])):
+            with self.assertRaisesRegex(ibge_client.IbgeServiceError, "estados"):
+                await ibge_client.get_states()
+
 
 class ChooseMunicipalityTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
