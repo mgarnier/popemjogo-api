@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Literal, Optional
 from uuid import UUID, uuid4
 
-from fastapi import FastAPI, Header, HTTPException, Query, Response, status
+from fastapi import FastAPI, Header, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
