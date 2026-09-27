@@ -6,12 +6,12 @@ A API é consumida pelo frontend React e não expõe o catálogo do IBGE diretam
 
 ## Tecnologias
 
-- Python
-- FastAPI
-- Uvicorn
-- HTTPX
-- SQLite
-- unittest
+- Python para implementar a API.
+- FastAPI para definir as rotas REST.
+- Uvicorn para servir a API.
+- HTTPX para consultar o IBGE.
+- SQLite para persistir as partidas.
+- unittest para testar a API.
 
 ## Pré-requisitos
 
@@ -140,15 +140,12 @@ A aplicação persiste somente o retrato usado pela partida: código e nome do m
 
 Falhas de comunicação ou dados inválidos são convertidas em respostas de erro apropriadas, sem criar uma partida incompleta.
 
-Antes da publicação definitiva, confirme os termos de uso, disponibilidade e eventuais requisitos de atribuição dos serviços oficiais do IBGE.
-
 ## Persistência e limitações
 
-- O schema SQLite é criado automaticamente no startup.
+- O schema SQLite é criado automaticamente na inicialização.
 - O volume Compose preserva o histórico após reinício do backend.
 - `docker compose down` preserva o volume.
 - `docker compose down -v` remove o banco persistido.
-- SQLite e uma única instância do backend são adequados ao MVP, mas não representam uma estratégia de escala horizontal.
 - O UUID anônimo não é autenticação: qualquer pessoa que obtenha o valor pode fazer requisições em nome daquele identificador.
 - Não há contas, login, ranking, multiplayer ou autenticação de usuários.
 
@@ -162,8 +159,6 @@ Executar localmente ou pelo script:
 
 Os testes usam IBGE mockado e SQLite temporário. Cobrem parsing e filtragem de dados do IBGE, rotas, validação de escopo, isolamento por jogador, limite de tolerância, estados da partida, histórico e fechamento das conexões.
 
-Última validação local: 23 testes passaram. A execução via Compose deve ser feita quando Docker Desktop estiver disponível.
-
 ## Repositório relacionado
 
-O frontend está em `../mvp-front` e contém o `docker-compose.yml`, o proxy Nginx e as instruções de execução integrada.
+O frontend está em <https://github.com/mgarnier/popemjogo-front> e contém o `docker-compose.yml`, o proxy Nginx e as instruções de execução integrada.
