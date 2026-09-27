@@ -15,7 +15,41 @@ A API é consumida pelo frontend React e não expõe o catálogo do IBGE diretam
 
 ## Pré-requisitos
 
-Para usar os scripts auxiliares e a execução integrada, instale Docker Desktop com Docker Compose disponível.
+Para usar os scripts auxiliares e a execução integrada, instale o [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) e inicie-o em modo de containers Linux. No Windows, use o backend WSL 2; se necessário, habilite a virtualização na BIOS/UEFI, execute `wsl --install` no PowerShell como administrador e reinicie o computador. Se o WSL já estiver instalado mas desatualizado, execute `wsl --update` ([instruções oficiais](https://learn.microsoft.com/windows/wsl/install)). Verifique `docker version`, `docker compose version` e `docker info --format '{{.OSType}}'` (deve retornar `linux`) antes de executar os scripts. Python não precisa estar instalado no host para rodar o backend em container; a porta 8000 deve estar livre.
+
+## Clonagem dos repositórios
+
+Instale o Git e, em uma pasta que conterá os dois projetos, clone os repositórios públicos com os nomes locais indicados:
+
+```powershell
+git clone https://github.com/mgarnier/popemjogo-front mvp-front
+git clone https://github.com/mgarnier/popemjogo-api mvp-back
+```
+
+A estrutura local deve ficar assim:
+
+```text
+<pasta-pai>/
+  mvp-front/
+  mvp-back/
+```
+
+Os diretórios `mvp-front` e `mvp-back` precisam estar no mesmo nível: o Docker Compose e os scripts da API usam esses caminhos para encontrar o outro módulo. Se já tiver clonado os projetos, confira os nomes e a posição das pastas antes de executar os scripts.
+
+## Execução com scripts (recomendada)
+
+No PowerShell, a partir da raiz da API:
+
+```powershell
+.\build.ps1
+.\run.ps1
+.\test.ps1
+```
+
+`build.ps1` constrói apenas a imagem da API; é opcional antes de `run.ps1`, que constrói e inicia somente o backend em segundo plano e aguarda o healthcheck. `test.ps1` reconstrói a imagem de testes da API e executa apenas seus testes, retornando erro se falharem. O terminal fica livre após `run.ps1`.
+
+- Swagger: <http://localhost:8000/docs>
+- Healthcheck: <http://localhost:8000/api/v1/health>
 
 ## Execução local sem Docker
 
@@ -34,33 +68,15 @@ Para iniciar a API:
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-## Scripts auxiliares com Docker
-
-Os scripts PowerShell da raiz usam o `docker-compose.yml` mantido no repositório frontend:
-
-```powershell
-.\build.ps1
-.\run.ps1
-.\test.ps1
-```
-
-Eles constroem a imagem, iniciam o backend e executam os testes no profile `test`.
-
 ## Execução com Docker Compose
 
-A configuração integrada fica no repositório frontend, que deve estar clonado lado a lado:
+A configuração integrada fica no repositório frontend, clonado ao lado da API conforme a estrutura indicada acima.
 
-```text
-mvp-arq/
-  mvp-front/
-  mvp-back/
-```
-
-A partir de `mvp-front`:
+Como alternativa aos scripts, a partir de `mvp-front`:
 
 ```powershell
 docker compose build backend
-docker compose up -d backend
+docker compose up -d --build --wait backend
 docker compose ps
 ```
 
