@@ -1,10 +1,9 @@
 $ErrorActionPreference = "Stop"
 
 Set-Location $PSScriptRoot
-$python = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
-
-if (-not (Test-Path $python)) {
-    throw "Ambiente virtual não encontrado. Execute .\build.ps1 antes de executar o backend."
+if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    throw "docker não foi encontrado no PATH. Instale o Docker Desktop antes de executar o backend."
 }
 
-& $python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+$compose = Join-Path (Split-Path $PSScriptRoot) "mvp-front\docker-compose.yml"
+docker compose -f $compose up backend

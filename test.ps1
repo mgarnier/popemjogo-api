@@ -1,11 +1,9 @@
 $ErrorActionPreference = "Stop"
 
 Set-Location $PSScriptRoot
-$python = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
-
-if (-not (Test-Path $python)) {
-    throw "Ambiente virtual não encontrado. Execute .\build.ps1 antes de testar o backend."
+if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    throw "docker não foi encontrado no PATH. Instale o Docker Desktop antes de testar o backend."
 }
 
-$env:PYTHONPATH = $PSScriptRoot
-& $python -m unittest discover -s tests -v
+$compose = Join-Path (Split-Path $PSScriptRoot) "mvp-front\docker-compose.yml"
+docker compose -f $compose --profile test run --rm backend-test
